@@ -526,6 +526,54 @@
     line-height: 1.5;
   }
 
+  /* ── APPS SCRIPT MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    max-width: 720px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 28px;
+    position: relative;
+  }
+  .modal-title { font-family: var(--font-head); font-weight: 800; font-size: 18px; color: var(--text); margin-bottom: 6px; }
+  .modal-sub { font-size: 12px; color: var(--sub); margin-bottom: 20px; line-height: 1.6; }
+  .modal-step { font-size: 10px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin: 18px 0 6px; }
+  .modal-step-text { font-size: 13px; color: var(--sub); margin-bottom: 10px; line-height: 1.7; }
+  .modal-step-text a { color: var(--green); text-decoration: none; }
+  .modal-step-text a:hover { text-decoration: underline; }
+  .modal-code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #a8c7fa;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 2px; transition: color 0.15s; }
+  .modal-close:hover { color: var(--text); }
+
   .state-msg {
     text-align: center;
     padding: 60px 20px;
@@ -680,6 +728,10 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Download CSV
     </button>
+    <button class="export-btn" style="background:rgba(88,101,242,0.12);border-color:rgba(88,101,242,0.35);color:#8b9dff" onclick="showAppsScript()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      Create Sheet Template
+    </button>
     <span class="export-toast" id="exportToast">✓ Copied!</span>
   </div>
 
@@ -713,7 +765,114 @@
     <div class="foot-note">Age is measured from the first available daily candle on Binance Futures (FAPI) or Bybit V5, whichever is earlier. Window: selected month ± 7 days. Coins must have an active perpetual contract on at least one exchange.</div>
   </footer>
 
+<!-- APPS SCRIPT MODAL -->
+<div class="modal-overlay" id="appsScriptModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Create Google Sheet Template</div>
+    <div class="modal-sub">Run this Apps Script once to create a perfectly formatted ATL sheet in your Google Drive — dark theme, frozen headers, correct column widths, and an instructions tab.</div>
+
+    <div class="modal-step">Step 1 — Open Apps Script</div>
+    <div class="modal-step-text">Go to <a href="https://script.google.com" target="_blank">script.google.com</a> → click <strong>New Project</strong> → delete any existing code.</div>
+
+    <div class="modal-step">Step 2 — Paste the script below</div>
+    <div class="modal-code" id="appsScriptCode">function createATLSheet() {
+  var ss = SpreadsheetApp.create("ATL Futures Age Scanner");
+  var sheet = ss.getSheetByName("Sheet1");
+  sheet.setName("Scan Results");
+
+  var headers = ["#","Symbol","Age (Days)","First Candle Date",
+    "First Candle Source","Open Price (USDT)","Funding Rate (%)","Listed On",
+    "Scan Date","Month Filter"];
+  sheet.getRange(1,1,1,headers.length).setValues([headers]);
+
+  // Header row styling
+  var hr = sheet.getRange(1,1,1,headers.length);
+  hr.setBackground("#080b0f");
+  hr.setFontColor("#00e676");
+  hr.setFontWeight("bold");
+  hr.setFontSize(10);
+  hr.setFontFamily("Courier New");
+
+  // Body area styling
+  sheet.getRange("A2:J2000").setBackground("#0d1117");
+  sheet.getRange("A2:J2000").setFontColor("#e8edf2");
+  sheet.getRange("A2:J2000").setFontFamily("Courier New");
+  sheet.getRange("A2:J2000").setFontSize(11);
+
+  sheet.setFrozenRows(1);
+  sheet.setColumnWidth(1, 45);
+  sheet.setColumnWidth(2, 115);
+  sheet.setColumnWidth(3, 90);
+  sheet.setColumnWidth(4, 135);
+  sheet.setColumnWidth(5, 135);
+  sheet.setColumnWidth(6, 140);
+  sheet.setColumnWidth(7, 115);
+  sheet.setColumnWidth(8, 105);
+  sheet.setColumnWidth(9, 125);
+  sheet.setColumnWidth(10, 105);
+  sheet.setTabColor("#00e676");
+
+  // Instructions sheet
+  var inst = ss.insertSheet("Instructions");
+  var rows = [
+    ["ATL Futures Age Scanner — Export Guide"],[""],
+    ["HOW TO EXPORT"],
+    ["1. Run the scan in the ATL tool and wait for results."],
+    ["2. OPTION A — Copy for Sheets: click the button, go to Scan Results tab, click A1, paste (Ctrl+V)."],
+    ["3. OPTION B — Google Sheets button: paste this sheet URL into the tool, click Push to Sheet."],
+    ["4. OPTION C — Download CSV: import via File > Import in Google Sheets."],
+    [""],["COLUMN GUIDE"],
+    ["#                  Row number"],
+    ["Symbol             Base asset + USDT (e.g. BTCUSDT)"],
+    ["Age (Days)         Days since first detected futures candle"],
+    ["First Candle Date  Date of the earliest daily candle found"],
+    ["First Candle Source  Which exchange had the earlier listing"],
+    ["Open Price (USDT)  Opening price of the very first candle"],
+    ["Funding Rate (%)   Current perpetual funding rate at scan time"],
+    ["Listed On          Binance / Bybit / Both"],
+    ["Scan Date          When this scan was run"],
+    ["Month Filter       Which age window was selected (1–6 months)"],
+    [""],["NOTES"],
+    ["Age = futures listing date, not spot or genesis date."],
+    ["Window = selected months × 30.44 days ± 7 days."],
+    ["Funding rate sourced from the exchange with the earlier listing."]
+  ];
+  inst.getRange(1,1,rows.length,1).setValues(rows);
+  inst.getRange("A1").setFontSize(14);
+  inst.getRange("A1").setFontWeight("bold");
+  inst.getRange("A1").setFontColor("#00e676");
+  inst.getRange("A1:A100").setBackground("#0d1117");
+  inst.getRange("A2:A100").setFontColor("#8892a0");
+  inst.getRange("A2:A100").setFontFamily("Courier New");
+  inst.getRange("A2:A100").setFontSize(11);
+  inst.setColumnWidth(1, 520);
+  inst.setTabColor("#5a6470");
+
+  var url = ss.getUrl();
+  Logger.log("Created: " + url);
+  SpreadsheetApp.getUi().alert("Sheet created!\n\nURL: " + url + "\n\nCopy this URL and paste it in the ATL tool's Google Sheets export field.");
+}</div>
+
+    <div class="modal-step">Step 3 — Run it</div>
+    <div class="modal-step-text">Click the <strong>▶ Run</strong> button. Grant permissions when prompted. The script creates your sheet and shows its URL — copy that URL and paste it into the tool's <em>Google Sheets</em> export field.</div>
+
+    <div class="modal-actions">
+      <button class="export-btn export-btn-sheets" onclick="copyAppsScript()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy Script
+      </button>
+      <button class="export-btn" style="background:rgba(88,101,242,0.12);border-color:rgba(88,101,242,0.35);color:#8b9dff"
+        onclick="window.open('https://script.google.com','_blank')">
+        Open Apps Script ↗
+      </button>
+      <button class="export-btn export-btn-copy" onclick="closeModal()">Close</button>
+      <span class="export-toast" id="modalToast" style="margin-left:0"></span>
+    </div>
+  </div>
 </div>
+
+</div><!-- /wrap -->
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
@@ -1328,5 +1487,23 @@ function showToast(msg, warn = false) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
 }
 
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function showAppsScript() {
+  document.getElementById('appsScriptModal').classList.add('visible');
+}
+function closeModal() {
+  document.getElementById('appsScriptModal').classList.remove('visible');
+}
+function copyAppsScript() {
+  const code = document.getElementById('appsScriptCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const t = document.getElementById('modalToast');
+    t.textContent = '✓ Script copied!';
+    t.style.color = 'var(--green)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  });
+}
+</script>
 </body>
 </html>
