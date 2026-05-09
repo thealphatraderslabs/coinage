@@ -425,6 +425,107 @@
   .td-open { color: var(--text); font-weight: 400; }
 
 
+  /* ── EXPORT BAR ── */
+  .export-bar {
+    display: none;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  .export-bar.visible { display: flex; }
+
+  .export-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+
+  .export-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 3px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .export-btn-sheets {
+    background: rgba(15,157,88,0.12);
+    border-color: rgba(15,157,88,0.35);
+    color: #0fd787;
+  }
+  .export-btn-sheets:hover { background: rgba(15,157,88,0.22); border-color: rgba(15,157,88,0.6); }
+
+  .export-btn-copy {
+    background: var(--bg3);
+    border-color: var(--border);
+    color: var(--sub);
+  }
+  .export-btn-copy:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+  .export-btn-csv {
+    background: var(--gold-dim);
+    border-color: rgba(255,213,79,0.25);
+    color: var(--gold);
+  }
+  .export-btn-csv:hover { background: rgba(255,213,79,0.18); }
+
+  .export-toast {
+    font-size: 11px;
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.3s;
+    margin-left: 4px;
+  }
+  .export-toast.show { opacity: 1; }
+
+  /* sheets URL input */
+  .sheets-url-row {
+    display: none;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .sheets-url-row.visible { display: flex; }
+
+  .sheets-url-input {
+    flex: 1;
+    min-width: 260px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .sheets-url-input:focus { border-color: rgba(0,230,118,0.4); }
+  .sheets-url-input::placeholder { color: var(--muted); }
+
+  .sheets-url-hint {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
   .state-msg {
     text-align: center;
     padding: 60px 20px;
@@ -551,6 +652,35 @@
       <button class="sort-btn" data-sort="funding" onclick="sortResults(this,'funding')">Funding</button>
       <button class="sort-btn" data-sort="exchange" onclick="sortResults(this,'exchange')">Exchange</button>
     </div>
+  </div>
+
+  <!-- SHEETS URL ROW -->
+  <div class="sheets-url-row" id="sheetsUrlRow">
+    <input class="sheets-url-input" id="sheetsUrlInput"
+      placeholder="Paste your Google Sheet URL here (e.g. https://docs.google.com/spreadsheets/d/…)" />
+    <button class="export-btn export-btn-sheets" onclick="doSheetsExport()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+      Push to Sheet
+    </button>
+    <button class="export-btn export-btn-copy" style="border-color:var(--border)" onclick="hideSheetsInput()">✕ Cancel</button>
+  </div>
+
+  <!-- EXPORT BAR -->
+  <div class="export-bar" id="exportBar">
+    <span class="export-label">Export</span>
+    <button class="export-btn export-btn-sheets" onclick="showSheetsInput()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      Google Sheets
+    </button>
+    <button class="export-btn export-btn-copy" onclick="copyTSV()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copy for Sheets
+    </button>
+    <button class="export-btn export-btn-csv" onclick="downloadCSV()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download CSV
+    </button>
+    <span class="export-toast" id="exportToast">✓ Copied!</span>
   </div>
 
   <!-- EMPTY STATE -->
@@ -944,11 +1074,14 @@ function renderResults() {
   if (data.length === 0) {
     document.getElementById('resultsTable').style.display = 'none';
     document.getElementById('resultsHeader').classList.remove('visible');
+    document.getElementById('exportBar').classList.remove('visible');
+    document.getElementById('sheetsUrlRow').classList.remove('visible');
     document.getElementById('emptyState').classList.add('visible');
     return;
   }
 
   document.getElementById('emptyState').classList.remove('visible');
+  document.getElementById('exportBar').classList.add('visible');
   document.getElementById('resultsHeader').classList.add('visible');
   document.getElementById('resultsCount').textContent = `(${data.length})`;
 
@@ -1007,7 +1140,193 @@ function renderResults() {
   });
 
   document.getElementById('resultsTable').style.display = 'table';
+}// ── EXPORT HELPERS ───────────────────────────────────────────────────────────
+
+const SHEET_HEADERS = [
+  '#', 'Symbol', 'Age (Days)', 'First Candle Date', 'First Candle Source',
+  'Open Price (USDT)', 'Funding Rate (%)', 'Listed On', 'Scan Date', 'Month Filter'
+];
+
+function getSortedResults() {
+  const data = [...scanResults];
+  if (sortKey === 'age')      data.sort((a, b) => a.ageDays - b.ageDays);
+  else if (sortKey === 'symbol')   data.sort((a, b) => a.base.localeCompare(b.base));
+  else if (sortKey === 'funding')  data.sort((a, b) => (a.funding ?? 0) - (b.funding ?? 0));
+  else if (sortKey === 'exchange') data.sort((a, b) => {
+    const sa = a.onBinance && a.onBybit ? 2 : a.onBinance ? 1 : 0;
+    const sb = b.onBinance && b.onBybit ? 2 : b.onBinance ? 1 : 0;
+    return sb - sa;
+  });
+  return data;
 }
-</script>
+
+function formatRow(coin, i) {
+  const scanDate = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  const firstDate = new Date(coin.earliestTs).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  const src = coin.earliestSrc === 'binance' ? 'Binance' : 'Bybit';
+
+  let openFmt = '';
+  if (coin.firstOpen !== null && !isNaN(coin.firstOpen)) {
+    const p = coin.firstOpen;
+    openFmt = p >= 1000 ? p.toLocaleString('en-US',{maximumFractionDigits:2})
+            : p >= 1    ? p.toFixed(4)
+            : p >= 0.01 ? p.toFixed(6)
+            :             p.toFixed(8);
+  }
+
+  let fundingFmt = '';
+  if (coin.funding !== null && !isNaN(coin.funding)) {
+    const sign = coin.funding >= 0 ? '+' : '';
+    fundingFmt = sign + (coin.funding * 100).toFixed(4) + '%';
+  }
+
+  const listedOn = coin.onBinance && coin.onBybit ? 'Both'
+                 : coin.onBinance ? 'Binance' : 'Bybit';
+
+  return [
+    i + 1,
+    coin.base + 'USDT',
+    coin.ageDays,
+    firstDate,
+    src,
+    openFmt,
+    fundingFmt,
+    listedOn,
+    scanDate,
+    selectedMonths + ' Month' + (selectedMonths > 1 ? 's' : '')
+  ];
+}
+
+// ── TSV copy (paste into Google Sheets) ─────────────────────────────────────
+function copyTSV() {
+  const data = getSortedResults();
+  if (!data.length) return;
+
+  const rows = [SHEET_HEADERS, ...data.map((c, i) => formatRow(c, i))];
+  const tsv  = rows.map(r => r.join('\t')).join('\n');
+
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast('✓ Copied! Paste into Google Sheets (Ctrl+V / Cmd+V)');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = tsv;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✓ Copied! Paste into Google Sheets');
+  });
+}
+
+// ── CSV download ─────────────────────────────────────────────────────────────
+function downloadCSV() {
+  const data = getSortedResults();
+  if (!data.length) return;
+
+  const escape = v => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+
+  const rows = [SHEET_HEADERS, ...data.map((c, i) => formatRow(c, i))];
+  const csv  = rows.map(r => r.map(escape).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const scanDate = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `atl-futures-age-scanner-${selectedMonths}m-${scanDate}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ CSV downloaded');
+}
+
+// ── Google Sheets API direct push ────────────────────────────────────────────
+function showSheetsInput() {
+  document.getElementById('sheetsUrlRow').classList.add('visible');
+  document.getElementById('sheetsUrlInput').focus();
+}
+function hideSheetsInput() {
+  document.getElementById('sheetsUrlRow').classList.remove('visible');
+}
+
+async function doSheetsExport() {
+  const url = document.getElementById('sheetsUrlInput').value.trim();
+  if (!url) { showToast('⚠ Paste your Google Sheet URL first', true); return; }
+
+  // extract spreadsheet ID from URL
+  const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (!match) { showToast('⚠ Invalid Sheets URL — check the link', true); return; }
+  const spreadsheetId = match[1];
+
+  const data = getSortedResults();
+  if (!data.length) { showToast('⚠ No results to export', true); return; }
+
+  const values = [SHEET_HEADERS, ...data.map((c, i) => formatRow(c, i))];
+
+  // Use Google Sheets API v4 — requires user to be signed in via Google
+  // We use fetch with credentials: 'include' so the browser's Google session is used
+  // This works when the sheet is owned by the user and they're signed in
+  const sheetsApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A1?valueInputOption=USER_ENTERED`;
+
+  try {
+    showToast('⏳ Pushing to Sheets…');
+    const resp = await fetch(sheetsApiUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ values })
+    });
+
+    if (resp.status === 401 || resp.status === 403) {
+      // Auth needed — open Google auth flow
+      showToast('⚠ Not authorised — see instructions below', true);
+      showSheetsAuthInstructions();
+      return;
+    }
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      showToast('⚠ Sheets API error: ' + (err?.error?.message || resp.status), true);
+      return;
+    }
+
+    hideSheetsInput();
+    showToast(`✓ ${values.length - 1} rows pushed to Google Sheets!`);
+
+  } catch (e) {
+    // CORS / network error — fall back to OAuth flow instructions
+    showToast('⚠ Auth required — use Copy for Sheets instead', true);
+    showSheetsAuthInstructions();
+  }
+}
+
+function showSheetsAuthInstructions() {
+  // Show a helpful note pointing them to the copy workflow
+  const el = document.getElementById('sheetsUrlRow');
+  const existing = el.querySelector('.sheets-url-hint');
+  if (existing) existing.remove();
+  const hint = document.createElement('div');
+  hint.className = 'sheets-url-hint';
+  hint.style.width = '100%';
+  hint.style.marginTop = '6px';
+  hint.innerHTML = `<span style="color:var(--gold)">⚠ Direct push requires Google sign-in in the same browser session.</span><br>
+    <strong style="color:var(--sub)">Easiest alternative:</strong> Click <em>Copy for Sheets</em>, open your sheet, click cell A1, and press Ctrl+V / Cmd+V — all columns paste perfectly with headers.`;
+  el.appendChild(hint);
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, warn = false) {
+  const el = document.getElementById('exportToast');
+  el.textContent = msg;
+  el.style.color = warn ? 'var(--gold)' : 'var(--green)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
 </body>
 </html>
