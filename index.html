@@ -905,15 +905,14 @@ updateWindowInfo();
 function updateWindowInfo() {
   const now       = Date.now();
   const targetMs  = selectedMonths * 30.44 * 86400 * 1000;
-  const minMs     = targetMs - 7 * 86400 * 1000;
-  const maxMs     = targetMs + 7 * 86400 * 1000;
-  const minDate   = new Date(now - maxMs).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
-  const maxDate   = new Date(now - minMs).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
-  const minDays   = Math.round(minMs / 86400000);
+  const maxMs     = targetMs + 7 * 86400 * 1000; // Upper limit of age window
+  
+  const startDate = new Date(now - maxMs).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  const endDate   = new Date(now).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
   const maxDays   = Math.round(maxMs / 86400000);
 
   const el = document.getElementById('windowInfo');
-  el.innerHTML = `Scanning for coins with first futures listing between <strong>${minDate}</strong> and <strong>${maxDate}</strong> &nbsp;·&nbsp; Age window: <strong>${minDays}–${maxDays} days</strong>`;
+  el.innerHTML = `Scanning for coins with first futures listing between <strong>${startDate}</strong> and <strong>${endDate}</strong> &nbsp;·&nbsp; Age window: <strong>0–${maxDays} days old</strong>`;
   el.classList.add('visible');
 }
 
@@ -1014,10 +1013,11 @@ async function getBybitEarliestCandle(base) {
 function isInWindow(ts, months) {
   const now      = Date.now();
   const targetMs = months * 30.44 * 86400 * 1000;
-  const minMs    = targetMs - 7 * 86400 * 1000;
-  const maxMs    = targetMs + 7 * 86400 * 1000;
+  const maxMs    = targetMs + 7 * 86400 * 1000; // E.g., ~37 days for 1 Month
   const age      = now - ts;
-  return age >= minMs && age <= maxMs;
+  
+  // Return true if the coin's age is between 0 days and the maximum filter days
+  return age >= 0 && age <= maxMs;
 }
 
 // ── STEP 3: Bulk funding rates ────────────────────────────────────────────────
